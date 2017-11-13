@@ -13,10 +13,14 @@ fi
 repository=$1
 
 case ${repository} in
+    "www" )
+        options='-e VIRTUAL_HOST=www.tsujio.org' ;;
     "www-activity" )
-        options='-e GITHUB_TOKEN=`cat /home/tsujio/github-token`' ;;
+        options='-e VIRTUAL_HOST=activity.tsujio.org \
+                 -e GITHUB_TOKEN=`cat /home/tsujio/github-token`' ;;
     "www-github-webhook" )
-        options='-e WEBHOOK_SECRET=`cat /home/tsujio/webhook-secret` \
+        options='-e VIRTUAL_HOST=github-webhook.tsujio.org \
+                 -e WEBHOOK_SECRET=`cat /home/tsujio/webhook-secret` \
                  -v /home/tsujio/id_rsa.github-webhook:/id_rsa:ro' ;;
     * )
         options='' ;;
@@ -39,7 +43,6 @@ docker build -t ${repository} . || exit 1
 docker stop $cid || exit 1
 
 docker run -d \
-    -e VIRTUAL_HOST=${repository}.tsujio.org \
     -v /etc/localtime:/etc/localtime:ro \
     ${options} \
     ${repository} || exit 1
