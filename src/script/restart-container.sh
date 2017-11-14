@@ -21,26 +21,31 @@ case ${repository} in
     "www-github-webhook" )
         options='-e VIRTUAL_HOST=github-webhook.tsujio.org \
                  -e WEBHOOK_SECRET=`cat /home/tsujio/webhook-secret` \
-                 -v /home/tsujio/id_rsa.github-webhook:/id_rsa:ro' ;;
+                 -v /home/tsujio/.ssh/id_rsa.github-webhook:/id_rsa:ro' ;;
     * )
         options='' ;;
 esac
 
-$SSH -i $KEY $USER@$HOST bash <<EOF
+$SSH -i $KEY \
+     -o StrictHostKeyChecking=no \
+     -o UserKnownHostsFile=/dev/null \
+     $USER@$HOST 'at now + 1 minute' <<EOF
 
-cid=`docker ps | grep '^[0-9a-f]+\s+${repository}\s+' | head -n 1 | cut -d' ' -f1`
-if [ -n "$cid" ]; then
+cid=\`docker ps | grep -E '^[0-9a-f]+\s+${repository}\s+' | head -n 1 | cut -d' ' -f1\`
+if [ -z "\$cid" ]; then
     echo "container not found"
     exit 1
 fi
 
 cd /home/tsujio/repo/${repository} || exit 1
 
+git checkout -- . || exit 1
+
 git pull origin master || exit 1
 
 docker build -t ${repository} . || exit 1
 
-docker stop $cid || exit 1
+docker stop \$cid || exit 1
 
 docker run -d \
     -v /etc/localtime:/etc/localtime:ro \
