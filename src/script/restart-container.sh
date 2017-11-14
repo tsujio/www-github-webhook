@@ -23,7 +23,7 @@ case ${repository} in
                  -e WEBHOOK_SECRET=`cat /home/tsujio/webhook-secret` \
                  -v /home/tsujio/.ssh/id_rsa.github-webhook:/id_rsa:ro' ;;
     * )
-        options='' ;;
+        echo "unknown repository: ${repository}"; exit 1 ;;
 esac
 
 $SSH -i $KEY \
