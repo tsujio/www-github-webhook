@@ -18,6 +18,8 @@ case ${repository} in
     "www-activity" )
         options='-e VIRTUAL_HOST=activity.tsujio.org \
                  -e GITHUB_TOKEN=`cat /home/tsujio/github-token`' ;;
+    "www-bingo" )
+        options='-e VIRTUAL_HOST=bingo.tsujio.org' ;;
     "www-github-webhook" )
         options='-e VIRTUAL_HOST=github-webhook.tsujio.org \
                  -e WEBHOOK_SECRET=`cat /home/tsujio/webhook-secret` \
